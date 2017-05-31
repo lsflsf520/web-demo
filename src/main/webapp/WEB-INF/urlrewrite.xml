@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN"
+        "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+<!--
+    Configuration file for UrlRewriteFilter
+    http://www.tuckey.org/urlrewrite/
+-->
+<urlrewrite>
+
+	<!-- 首页 -->
+	<rule>
+		<from>/$</from>
+		<to type="forward">/index.do</to>
+	</rule>	
+	
+	<outbound-rule>
+	  <from>^/index.do$</from>
+	  <to>/</to>
+	</outbound-rule>
+	
+	<!-- 正在建设中的网页 -->
+	<rule>
+		<from>/nonopen.html</from>
+		<to type="forward">/nonopen.do</to>
+	</rule>	
+	
+	<outbound-rule>
+	  <from>/nonopen.do</from>
+	  <to>/nonopen.html</to>
+	</outbound-rule>
+	
+</urlrewrite>
+
