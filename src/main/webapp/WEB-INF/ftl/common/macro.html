@@ -9,7 +9,7 @@
  --> 
 <div style="height: 40px;"></div>
 <div>
-	<div class="fhui-admin-pagelist" style="height:40px;z-index: 10000">
+	<div class="core-pagelist" style="height:40px;z-index: 10000">
        <div id="actions" style="float:left;margin:10px 0px 0px 0px;">
             <div class="l-list">
             	<#if create?? && create!=''>
@@ -41,9 +41,6 @@
 	
 
 <script>
-function createLayer(title,html,size,preAction,data){
-	commonMessage.openWindow(title,html,size,preAction,data);
-}
 function doPageRefresh(formId){
 	var searchBtn = $("#search");
 	if(searchBtn && searchBtn.length > 0){

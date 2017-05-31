@@ -8,8 +8,10 @@ layui.use(['element','layer'],function() {
 //			,
 //		t_m = 'top-menu'
 			;
-		
+	
     var mainHeight = $(window).height() - 60 - 41 - 44 - 5;
+    
+//    var mainHeight = $(window).height() - 115;
 	
    /* element.on('nav(' + t_m + ')',function(data) {
         l_o.hide().eq(data.index()).show();

@@ -88,6 +88,8 @@ iframe {
 	height:35px;border-radius: 50%;
 }
 
+.core-pagelist { position: fixed; z-index: 999999; left: 0px; bottom: 0; right: 0px; width: 100%; padding: 0px 10px; background-color: #eee;padding-bottom: 5px; /*border-bottom: 1px solid #393d49;*/ }
+
 .container{border: 1px solid #e2e2e2;margin-top: 5px;}
 .layui-table td:first-child, .layui-table th:first-child{border-left: 0}
 .layui-table td:last-child, .layui-table th:last-child{border-right: 0}
@@ -98,7 +100,7 @@ iframe {
 /** 鍚庡彴鐧诲綍鏍峰紡 */
 .admin-login{width:410px;margin:0 auto;margin-top:150px;}
 .layui-elem-field{border-radius: 20px;background-color: aliceblue;}
-.layui-form{margin:30px 10px 25px}
+.layui-form{margin:30px 0px 25px}
 .layui-form-item .input-code{width: 160px;}
 .layui-form-item .code{width: 105px;margin-right: 0px;}
 .submit-login{margin-top:30px;}

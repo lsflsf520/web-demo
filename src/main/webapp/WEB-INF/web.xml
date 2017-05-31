@@ -85,10 +85,10 @@
 	<servlet-mapping>
 		<servlet-name>appServlet</servlet-name>
 		<url-pattern>*.do</url-pattern>
-		<init-param>
+<!-- 		<init-param>
 			<param-name>ignoreTypes</param-name>
 			<param-value>gif,bmp,png,jpg,js,flash,css,swf</param-value>
-		</init-param>
+		</init-param> -->
 	</servlet-mapping>
 
 	<welcome-file-list>

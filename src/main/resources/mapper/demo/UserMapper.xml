@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ujigu.secure.demo.dao.UserDao" >
+  <resultMap id="BaseResultMap" type="com.ujigu.secure.demo.entity.User" >
+    <id column="sid" property="sid" jdbcType="INTEGER" />
+    <result column="nick" property="nick" jdbcType="VARCHAR" />
+    <result column="age" property="age" jdbcType="TINYINT" />
+    <result column="pr_id" property="prId" jdbcType="INTEGER" />
+    <result column="city_id" property="cityId" jdbcType="INTEGER" />
+    <result column="cou_id" property="couId" jdbcType="INTEGER" />
+    <result column="company" property="company" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.ujigu.secure.demo.entity.User" extends="BaseResultMap" >
+    <result column="descp" property="descp" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="BaseColumnList" >
+    sid, nick, age, pr_id, city_id, cou_id, company, status, create_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    descp
+  </sql>
+  <select id="findByPK" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="BaseColumnList" />
+    ,
+    <include refid="Blob_Column_List" />
+    from test_user
+    where sid = #{sid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPK" parameterType="java.lang.Integer" >
+    delete from test_user
+    where sid = #{sid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ujigu.secure.demo.entity.User" >
+    insert into test_user (sid, nick, age, 
+      pr_id, city_id, cou_id, 
+      company, status, create_time, 
+      descp)
+    values (#{sid,jdbcType=INTEGER}, #{nick,jdbcType=VARCHAR}, #{age,jdbcType=TINYINT}, 
+      #{prId,jdbcType=INTEGER}, #{cityId,jdbcType=INTEGER}, #{couId,jdbcType=INTEGER}, 
+      #{company,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{descp,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPK" parameterType="com.ujigu.secure.demo.entity.User" >
+    update test_user
+    <set >
+      <if test="nick != null" >
+        nick = #{nick,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=TINYINT},
+      </if>
+      <if test="prId != null" >
+        pr_id = #{prId,jdbcType=INTEGER},
+      </if>
+      <if test="cityId != null" >
+        city_id = #{cityId,jdbcType=INTEGER},
+      </if>
+      <if test="couId != null" >
+        cou_id = #{couId,jdbcType=INTEGER},
+      </if>
+      <if test="company != null" >
+        company = #{company,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="descp != null" >
+        descp = #{descp,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.ujigu.secure.demo.entity.User" >
+    update test_user
+    set nick = #{nick,jdbcType=VARCHAR},
+      age = #{age,jdbcType=TINYINT},
+      pr_id = #{prId,jdbcType=INTEGER},
+      city_id = #{cityId,jdbcType=INTEGER},
+      cou_id = #{couId,jdbcType=INTEGER},
+      company = #{company,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      descp = #{descp,jdbcType=LONGVARCHAR}
+    where sid = #{sid,jdbcType=INTEGER}
+  </update>
+  <insert id="insertReturnPK" useGeneratedKeys="true" keyProperty="sid" parameterType="com.ujigu.secure.demo.entity.User" >
+    insert into test_user (sid, nick, age, 
+      pr_id, city_id, cou_id, 
+      company, status, create_time, 
+      descp)
+    values (#{sid,jdbcType=INTEGER}, #{nick,jdbcType=VARCHAR}, #{age,jdbcType=TINYINT}, 
+      #{prId,jdbcType=INTEGER}, #{cityId,jdbcType=INTEGER}, #{couId,jdbcType=INTEGER}, 
+      #{company,jdbcType=VARCHAR}, #{status,jdbcType=CHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{descp,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into test_user
+		(sid,nick,age,pr_id,city_id,cou_id,company,status,create_time,descp)
+	values 
+	<foreach collection="list" item="item" separator="," index="index">
+		(#{item.sid,jdbcType=INTEGER},#{item.nick,jdbcType=VARCHAR},#{item.age,jdbcType=TINYINT},#{item.prId,jdbcType=INTEGER},#{item.cityId,jdbcType=INTEGER},#{item.couId,jdbcType=INTEGER},#{item.company,jdbcType=VARCHAR},#{item.status,jdbcType=CHAR},#{item.createTime,jdbcType=TIMESTAMP},#{item.descp,jdbcType=LONGVARCHAR})
+	</foreach>
+  </insert>
+  <delete id="batchDel" >
+    		delete from test_user
+			where sid in 
+				<foreach collection="pks" item="item" separator="," open="(" close=")">
+				#{item,jdbcType=INTEGER}
+			</foreach>
+  </delete>
+  <update id="softDel" >
+    		update test_user
+			set ${statusColName} = #{delStatusVal, jdbcType=INTEGER}
+			where sid in 
+				<foreach collection="pks" item="item" separator="," open="(" close=")">
+				#{item,jdbcType=INTEGER}
+			</foreach>
+  </update>
+  <select id="findAll" resultMap="BaseResultMap" >
+    select
+		<include refid="BaseColumnList"/>
+	from test_user
+	<where>
+		<trim suffixOverrides="and" >
+			<if test="sid != null and sid != ''" >
+				and sid = #{sid,jdbcType=INTEGER}
+			</if>
+			<if test="nick != null and nick != ''" >
+				and nick = #{nick,jdbcType=VARCHAR}
+			</if>
+			<if test="age != null and age != ''" >
+				and age = #{age,jdbcType=TINYINT}
+			</if>
+			<if test="prId != null and prId != ''" >
+				and pr_id = #{prId,jdbcType=INTEGER}
+			</if>
+			<if test="cityId != null and cityId != ''" >
+				and city_id = #{cityId,jdbcType=INTEGER}
+			</if>
+			<if test="couId != null and couId != ''" >
+				and cou_id = #{couId,jdbcType=INTEGER}
+			</if>
+			<if test="company != null and company != ''" >
+				and company = #{company,jdbcType=VARCHAR}
+			</if>
+			<if test="status != null and status != ''" >
+				and status = #{status,jdbcType=CHAR}
+			</if>
+			<if test="createTime != null and createTime != ''" >
+				and create_time = #{createTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="descp != null and descp != ''" >
+				and descp = #{descp,jdbcType=LONGVARCHAR}
+			</if>
+			<!--<if test="queryParam != null">
+				<if test="queryParam.startDate != null and queryParam.startDate != '' and queryParam.endDate != null and queryParam.endDate != ''">
+					and create_time between #{queryParam.startDate, jdbcType=VARCHAR} and #{queryParam.endDate, jdbcType=VARCHAR}
+				</if>
+				<if test="queryParam.keyword != null and queryParam.keyword != ''">
+					and (name like concat('%', #{queryParam.keyword, jdbcType=VARCHAR}, '%') or other_col like concat('%', #{queryParam.keyword, jdbcType=VARCHAR}, '%') )
+				</if>
+			</if>-->
+		</trim>
+	</where>
+  </select>
+</mapper>
