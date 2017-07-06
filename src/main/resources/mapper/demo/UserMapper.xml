@@ -114,7 +114,7 @@
 				#{item,jdbcType=INTEGER}
 			</foreach>
   </delete>
-  <update id="softDel" >
+  <update id="updateStatus" >
     		update test_user
 			set ${statusColName} = #{delStatusVal, jdbcType=INTEGER}
 			where sid in 
