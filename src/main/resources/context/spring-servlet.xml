@@ -19,11 +19,11 @@
         <bean class="org.springframework.http.converter.StringHttpMessageConverter"> 
             <constructor-arg value="UTF-8" />        
         </bean>
-        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <!-- <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
             <property name="objectMapper">
                 <bean class="com.github.miemiedev.mybatis.paginator.jackson2.PageListJsonMapper" />
             </property>
-        </bean>
+        </bean> -->
       </mvc:message-converters>
     </mvc:annotation-driven>
     
@@ -54,7 +54,7 @@
 			<props>
 				<prop key="template_update_delay">10</prop>
 				<prop key="locale">zh_CN</prop>
-				<prop key="datetime_format">yyyy-MM-dd</prop><!-- 时间格式化 -->
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop><!-- 时间格式化 -->
 				<prop key="date_format">yyyy-MM-dd</prop>
 				<prop key="number_format">#.##</prop>
 			</props>
