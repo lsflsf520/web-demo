@@ -59,11 +59,14 @@
 				<prop key="number_format">#.##</prop>
 			</props>
 		</property>
-		<!-- <property name="freemarkerVariables">
+		<property name="freemarkerVariables">
             <map>
-            	<entry key="GetAgentCompany" value-ref="GetAgentCompany"/>
+            	 <entry key="Value" value-ref="Value"/>
+                <entry key="ValueMap" value-ref="ValueMap"/>
+                <entry key="NRSubmit" value-ref="NRSubmit"/>
+                <entry key="LinkNRSubmit" value-ref="LinkNRSubmit"/>
             </map>
-        </property> -->
+        </property>
 	</bean>
 
 	<!--视图解释器 -->
@@ -81,5 +84,37 @@
 		<property name="maxUploadSize" value="83886080" /><!-- 80M -->
 		<property name="maxInMemorySize" value="2048" />
 	</bean>
+	
+	<bean id="excludeUrlSet" class="java.util.TreeSet">
+	  <constructor-arg>
+	    <set>
+            <value>/error/**</value>
+            <value>/data/sync/**</value>
+            <value>/sys/port/loginPage.do</value>
+            <value>/sys/port/doLogon.do</value>
+            <value>/sys/port/doLogout.do</value>
+            <value>/sys/port/loadMenu.do</value>
+            <value>/sys/port/welcome.do</value>
+        </set>
+	  </constructor-arg>
+	</bean>
+	
+	<mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.ujigu.secure.web.filter.LoginInterceptor">
+              <property name="excludeUrls" ref="excludeUrlSet"/>              
+            </bean>
+        </mvc:interceptor> 
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/sys/port/index.do"/>
+            <mvc:exclude-mapping path="/sys/port/loadMenu.do"/>
+            <mvc:exclude-mapping path="/sys/port/welcome.do"/>
+            <bean class="com.ujigu.secure.sys.interceptor.AccessInterceptor">
+              <property name="excludeUrls" ref="excludeUrlSet"/>
+            </bean>
+        </mvc:interceptor>
+     </mvc:interceptors>
 
 </beans>

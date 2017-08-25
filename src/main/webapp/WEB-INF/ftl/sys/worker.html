@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>车型管理</title>
+    <#include "../header.html"/>
+</head>
+<body>
+
+<div class="main-wrap">
+
+  <div class="tabbable tabbable-primary" >
+    <form class="layui-form layui-form-pane" action="list.do">
+        <div class="layui-form-item">
+            <label class="layui-form-label">关键字</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" value="${(worker.workerName)!}" name="workerName" placeholder="姓名/登录名/手机/邮箱" value="">
+            </div>
+            <input id="pageNum" name="pageNum" type="hidden">
+            <button type="submit" id="search" class="layui-btn">查找</button>
+        </div>
+    </form>
+
+    <table class="layui-table">
+        <thead>
+        <tr>
+        	<td width="20px;"><input type="checkbox" id="selected-all"></td>
+        	<td>姓名</td>
+            <td>登录名</td>
+            <td>角色</td>
+           <#if !IS_WEB_ADMIN>
+            <td>所属机构</td>
+           </#if>
+           <#if IS_WEB_ADMIN>
+            <td>所属公司</td>
+           </#if>
+            <td>手机</td>
+            <td>创建时间</td>
+            <td width="180px">操作</td>
+        </tr>
+        </thead>
+        <tbody>
+        <#list workerPager.content as i>
+            <tr>
+            	<td>
+            	  
+            		<input type="checkbox" pk="${i.id!}">
+            	</td>
+            	<td>${i.workerName!}</td>
+                <td>
+                    ${i.loginName!}
+                </td>
+                <td>
+                    ${Value("role_id_name", i.roleId!, acId!)!}
+                </td>
+              <#if !IS_WEB_ADMIN>
+                <td>
+                  <#if !i.departId?? || i.departId == 0>
+                    ${Value("ac_id_name", i.acId!)!}
+                  <#else>
+                    ${Value("ad_id_name", i.departId!, acId!)!}
+                  </#if>
+                </td>
+              </#if>
+              <#if IS_WEB_ADMIN>
+                <td>
+                  ${Value("ac_id_name", i.acId!)!}
+                </td>
+              </#if>
+                <td>
+                    ${i.phone!}
+                </td>
+                <td>
+                    ${i.createTime!?string("yyyy-MM-dd HH:mm:ss")}
+                </td>
+                <td>
+                   <#if !i.loginName?ends_with("admin")>
+                    <button class="layui-btn layui-btn-mini update" title="修改操作员#${i.id!}" url="${BASE_URI}/sys/worker/toedit.do?pk=${i.id!}">修改</button>
+                    <button class="layui-btn layui-btn-mini" 
+                    		onclick="commonMessage.alertComfirm('确定要删除该条 ${i.workerName!} 吗?', '确定', '取消', '${BASE_URI}/sys/worker/delete.do?pks=${i.id!}');"
+                    >删除</button>
+                  </#if>
+                    <button class="layui-btn layui-btn-mini" 
+                    		onclick="popPwdDialog(${i.id!});">重置密码</button>
+                </td>
+            </tr>
+        </#list>
+        </tbody>
+    </table>
+  
+   
+	    <!-- 公共分页插件 -->
+    <@commonPages size='${(workerPager.totalElements)!}'  pages='${(workerPager.totalPages)!}' pageNum='${(workerPager.number)!}' 
+   				  create="createTab('添加操作员','${BASE_URI}/sys/worker/toedit.do')" 
+   				  delete=""
+   				  update=""
+    /> 
+  </div>
+		<!-- main-wrap end -->
+	
+</div>
+
+ <div id="model" style="display:none;">
+     <form class="layui-form" id="popForm" style="padding:18px;">
+      <input type="hidden" name="workerId" id="workerId"/>
+	  <div class="layui-form-item" style="width:360px;">
+	    <label class="layui-form-label">新密码<span style="color: red; font-weight: bold;"> *</span></label>
+	    <div class="layui-input-inline" >
+	      <input type="password" name="password" id="pwd" class="layui-input" lay-verify="required|chkLength">
+	    </div>
+	  </div>
+	  <div class="layui-form-item"  style="width:360px;">
+	  <label class="layui-form-label">重复密码<span style="color: red; font-weight: bold;"> *</span></label>
+	    <div class="layui-input-inline">
+	      <input type="password" name="retypePwd" id="retypePwd" class="layui-input" lay-verify="required|checkSamePwd">
+	    </div>
+	  </div>
+      <div class="layui-form-item" style="width:360px;">
+	    <div class="layui-input-block" >
+	      <button class="layui-btn" type="button" lay-submit lay-filter='rstPwd'>提 交</button>
+	    </div>
+	  </div>
+	 </form>
+</div>
+    
+<script type="text/javascript">
+//closecheckclass = true;
+function popPwdDialog(workerId){
+	$("#workerId").val(workerId);
+	commonMessage.openWindow('重置密码','model',['400px','300px']);
+}
+
+layui.use(['form'], function(){
+	var form=layui.form();
+	form.verify(checker);
+    form.on('submit(rstPwd)', function(data){
+		commonMessage.closeWindow();
+		actions('${BASE_URI}/sys/worker/resetPasswd.do','','popForm','重置密码');
+		return false;
+	});
+});
+
+var checker = {
+		checkSamePwd:function(data){
+			var pwd = $("#pwd").val();
+			var retypePwd = $("#retypePwd").val();
+			if(pwd && pwd != retypePwd){
+				return "输入的两次密码不一致！";
+			}
+		}
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>账号管理</title>
+    <#include "../header.html"/>
+    <link rel="stylesheet" href="${BASE_URI}/static/plugins/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="${BASE_URI}/static/sys/js/role.js?v=${RES_VERSION}"></script>
+    <script type="text/javascript" src="${BASE_URI}/static/sys/js/menu.js?v=${RES_VERSION}"></script>
+    <style>
+      .ztree-wrap {
+	    margin: 0 auto;
+	    width: 400;
+	    height: 650;
+	    overflow: auto;
+      }
+    </style>
+</head>
+
+<body>
+<div class="main-wrap" style="width:800px;">
+<div class="tabbable tabbable-primary" >
+	<form class="layui-form layui-form-pane" action="list.do">
+        <div class="layui-form-item">
+            <label class="layui-form-label">名字</label>
+            <div class="layui-input-inline">
+                <input class="layui-input" type="text" value="${keyword!}" name="keyword" placeholder="角色名" value="">
+            </div>
+            <input id="pageNum" name="pageNum" type="hidden">
+            <button type="submit" id="search" class="layui-btn" id="search">查找</button>
+        </div>
+    </form>
+
+    <table class="layui-table">
+        <thead>
+        <tr>
+        	<!-- <td width="20px;"><input type="checkbox" id="selected-all"></td> -->
+        	<td width="60px;">序 号</td>
+            <td>角色名</td>
+            <td>状态</td>
+            <td  width="120px">操作</td>
+        </tr>
+        </thead>
+        <tbody>
+        <#list rolePage.content as i>
+            <tr>
+            	
+            	<!-- 
+            	<td>
+            		<input type="checkbox" pk="${i.id!}">
+            	</td>
+            	 -->
+            	<td>${i_index+1}</td>
+                <td>
+                    ${i.name!}
+                </td>
+                <td>
+                    ${Value("common_status", i.state)!}
+                </td>
+                <td>
+                  <#if (superAdminRoleId!-1) != i.id>
+                   <#if (departOperRoleId!-1) != i.id>
+                    <button class="layui-btn layui-btn-mini update" title="修改操作员#${i.id!}" url="${BASE_URI}/sys/role/toedit.do?pk=${i.id!}">修改</button>
+                   </#if>
+                    <button class="layui-btn layui-btn-mini" onclick="createTab('编辑权限','${BASE_URI}/sys/role/toprivedit.do?pk=${i.id!}')">授权</button>
+                  </#if>
+                    <#--  <button class="layui-btn layui-btn-mini" onclick="popMenuTree(${i.id!}, '${i.name!}')">编辑权限</button>  -->
+                  
+                </td>
+            </tr>
+        </#list>
+        </tbody>
+    </table>
+    
+   
+    <!-- 公共分页插件 -->
+     <@commonPages size='${(rolePage.totalElements)!}'  pages='${(rolePage.totalPages)!}' pageNum='${(rolePage.number)!}' 
+   				  create="createTab('添加角色','${BASE_URI}/sys/role/toedit.do')" 
+   				  delete=""
+   				  update=""
+    /> 
+
+</div>
+
+<div id="menuTreeDiv" style="display:none;width:260px;" class="ztree-wrap">
+	<div id="projectDiv" class="layui-form-item">
+		<input type="hidden" name="id" id="mRoleId"  />
+		<div class="layui-input-inline">
+		<label>当前角色：</label><label id="mRNLable"></label>
+		</div>
+		<input id="btnSaveRoleMenu" type="button"
+			onclick="saveRoleMenuRelation();" class="layui-btn layui-btn-mini"  value="保 存">
+	</div>
+	<ul id="menuTree" class="ztree"></ul>
+</div>
+
+
+
+<input type="hidden" id="parentId">
+<input type="hidden" id="clickMenuIds" value="">
+
+
+<script type="text/javascript"
+	src="${BASE_URI}/static/plugins/ztree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript"
+	src="${BASE_URI}/static/plugins/ztree/js/jquery.ztree.excheck-3.5.js"></script>
+<script type="text/javascript">
+	var setting = {
+		check : {
+			enable : true
+		},
+		view: {
+			showTitle: false
+		}
+	};
+
+	var treeObj = null;
+	$(document).ready(function() {
+		$.ajax({
+			async : false,
+			url : "${BASE_URI}/sys/menu/loadAllLinkForProjectName.do?projectName=${projectName}",
+			type : "POST",
+			success : function(data) {
+				var zNodes = data.model;
+				treeObj =  $.fn.zTree.init($("#menuTree"), setting,
+						zNodes.length > 0 ? zNodes : undefined)
+						.expandAll(true);
+			}
+		});
+						
+	});
+</script>
+<script>
+  function pop2Modify(roleId, roleName){
+	  $("#roleId").val(roleId);
+	  $("#roleName").val(roleName);
+	  commonMessage.openWindow("编辑角色", "model", 300);
+  }
+  
+  function popMenuTree(roleId, roleName){
+	  $("#mRoleId").val(roleId);
+	  $("#mRNLable").text(roleName);
+	  var zTree = $.fn.zTree.getZTreeObj("menuTree");
+	  zTree.checkAllNodes(false);
+	  $.ajax({
+		  url : WEB_ROOT + "/sys/menu/loadLinkByRole.do?roleId=" + roleId,
+	      type : "GET",
+		  success:function(data){
+			  if(data && data.resultCode != "SUCCESS"){
+				  commonMessage.message(data.errorMsg);
+				  return;
+		      }
+			  
+			  var linkIds = data.model;
+			  $(linkIds).each(function(i, d){
+			    var node = zTree.getNodeByParam("id", d);
+			    if(node && node.children.length <= 0){
+			      zTree.checkNode(node, true, true);
+			    }
+			  });
+			  commonMessage.openWindow("给角色配置功能", "menuTreeDiv", 500);
+		  }
+	  }); 
+   }
+</script>
+</div>
+</body>
+</html>

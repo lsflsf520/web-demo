@@ -58,9 +58,27 @@
         <div class="layui-side layui-bg-black left-menu-all">
             	<ul class="layui-nav layui-nav-tree left-menu" lay-filter="left-menu">
                     <li class="layui-nav-item layui-this">
-                        <a href="javascript:;" data-url="home.html" data-id="1">后台首页</a>
+                        <a href="javascript:;" data-url="welcome.do" data-id="1">后台首页</a>
                     </li>
-                    <li class="layui-nav-item">
+                 <#if menus??>
+                  <#list menus as d>
+                    <li >
+                      <li class="layui-nav-item">
+                        <a href="javascript:;">${(d.name)!}</a>
+                      <#if d.children?? && d.children?size gt 0>
+                        <dl class="layui-nav-child" style="background-color:#2F4056;">
+                          <#list d.children as c>
+                            <dd>
+                                <a href="javascript:;" data-url="${BASE_URI}${(c.url)!}" data-id="${(c.id)!}">${(c.name)!}</a>
+                            </dd>
+                          </#list>
+                        </dl>
+                      </#if>
+                      </li>
+                    </li>
+                  </#list>
+                </#if>
+                    <!-- <li class="layui-nav-item">
                         <a href="javascript:;">测试管理</a>
                         <dl class="layui-nav-child" style="background-color:#2F4056;">
                             <dd>
@@ -101,7 +119,7 @@
                                 <a href="javascript:;" data-url="tabletree.html" data-id="10">树表示例</a>
                             </dd>
                         </dl>
-                    </li>
+                    </li> -->
                 </ul>
         </div>
 		

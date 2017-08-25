@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>账号管理</title>
+    <#include "../header.html"/>
+    <link rel="stylesheet" href="${BASE_URI}/static/plugins/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="${BASE_URI}/static/sys/js/menu.js?v=${RES_VERSION}"></script>
+</head>
+
+<body>
+<div class="layui-form-item" style="margin-top:20px;margin-left:20px;">
+ <#if IS_WEB_ADMIN>
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="popRootMenuDiv();" value="添加顶级菜单">
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="popMenuDiv();" value="添加子菜单">
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="popLinkDiv();" value="添加子功能">
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="deleteLink();" value="删除">
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="popMenu2Edit();" value="编辑">
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="commonMessage.alertComfirm('确定要推送所有数据给代理公司吗?', '确定', '取消', '${BASE_URI}/data/sync/pushData2All.do?tableName=link')" value="推送菜单数据">
+ </#if>
+  <input type="button" class="layui-btn layui-btn-mini"  onclick="popDistribRoleDiv();" value="关联角色">
+  <div id="projectDiv" style="display:none;">
+    <select id="queryProj" onchange="loadLinkForProjectName();">
+      <#list projectNames as pname>
+         <option value="${pname }">${pname }</option>
+      </#list>
+    </select>
+  </div>
+  <div>
+	<ul id="menuTree" class="ztree"></ul>
+  </div>
+</div>
+
+<script>
+closecheckclass=true;
+</script>
+
+<div id="menuEditDiv" style="display:none;width:400px;height:450px;">
+<form class="layui-form layui-form-pane" style="padding:18px;">
+   <input type="hidden" id="linkId">
+   <input type="hidden" id="parentId">
+   <input type="hidden" id="linkType" >
+   <span id="shareRadio" style="display:none;"><input type="radio" name="share" value="0" checked="checked" title="模块私有"></span>
+   <span id="dataCheckRadio" style="display:none;"><input type="radio" name="dataCheck" value="0" checked="checked" title="数据权限不自动校验"></span>
+			<div class="layui-form-item">
+				<label class="layui-form-label"><span class="varName">菜单</span>名称：</label>
+				<input id="linkName" class="layui-input" style="width: 260px;">
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">链接地址：</label>
+				<input id="linkUrl" size="40" class="layui-input" style="width: 260px;">
+			</div>
+			<div class="layui-form-item" id="projDiv" pane="" style="width:370px;">
+				<label class="layui-form-label">可见web：</label>
+				<div class="layui-input-inline" style="width:370px;">
+					<span id="projectName"> 
+						<#list projectNames as pname> 
+							<input type="checkbox" value="${pname}" lay-skin="primary" title="${pname}" /> 
+						</#list>
+					</span>
+				</div>
+			</div>
+			<div class="layui-form-item">
+				<label class="layui-form-label">排序权重：</label>
+				<input id="linkOrderRank" style="width: 60px;" value="100" class="layui-input">
+			</div>
+			<div class="layui-form-item layui-form-text" style="width:370px;">
+				<label class="layui-form-label"><span class="varName">菜单</span>描述：</label>
+				<textarea id="linkRemark" style="width:370px;" rows="3" cols="50" class="layui-textarea"></textarea>
+			</div>
+			<div class="layui-form-item">
+				<input type="button" class="layui-btn layui-btn-mini" onclick="saveLink();" value="保 存">
+			</div>
+		</form>
+</div>
+
+<div id="roleDistribDiv" style="display:none;width:300px;padding:30px;">
+  <div class="tk">
+   <!-- <form class="layui-form layui-form-pane"> -->
+    <input type="hidden" id="lkId">
+    <label>菜单/功能:<span id="linkShowName"></span></label><br>
+    <div class="layui-form-item">
+    <div class="layui-input-inline">
+    <ul id="rolelistUl"></ul>
+    </div>
+    </div>
+    <div class="layui-form-item">
+    <input type="button" class="layui-btn layui-btn-mini" onclick="saveRoleRelation();" value="保 存">
+    </div>
+   <!--  </form> -->
+  </div>
+</div>
+
+<script type="text/javascript"
+	src="${BASE_URI}/static/plugins/ztree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript"
+	src="${BASE_URI}/static/plugins/ztree/js/jquery.ztree.exedit-3.5.js"></script>
+
+<SCRIPT type="text/javascript">
+	var setting = {
+			async: {
+				enable: true,
+				url:"${BASE_URI}/sys/menu/findByParentId.do",
+				autoParam:["id=parentId"],
+				otherParam:{"otherParam":"zTreeAsyncTest"},
+				dataFilter: filter
+			}
+	};
+	
+	function filter(treeId, parentNode, childNodes) {
+		if (!childNodes) return null;
+		/* for (var i=0, l=childNodes.length; i<l; i++) {
+			childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+		} */
+		return childNodes;
+	}
+
+	 var zNodes =[
+	             /* {
+	            	 name:"web-ms",
+	            	 isParent:true
+	             } */
+	             <#list links as link>
+	               <#if link_index != 0>
+	                ,
+	               </#if>
+	                 {
+		               id: ${link.id! },
+		               name : "${link.displayBgName! }",
+		               projectName : "${link.projectName!}",
+		               link : "${link.link!}",
+					   code : "${link.code!}",
+					   orderRank : "${link.orderRank!}",
+					   remark : "${link.remark!}",
+					   isShare : "${link.isShare!}",
+					   needDataCheck : "${link.needDataCheck!}",
+		               isParent : ${link.isParent?c }
+		             }
+	             </#list>
+	           ]; 
+	
+	var treeObj = null;
+	$(document).ready(function() {
+		treeObj = $.fn.zTree.init($("#menuTree"), setting, zNodes.length > 0 ? zNodes : undefined);
+	});
+</SCRIPT>
+</body>
+</html>

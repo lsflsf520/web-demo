@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>车型管理</title>
+    <#include "../header.html"/>
+    <link rel="stylesheet" href="${BASE_URI}/static/plugins/ztree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+    <style type="text/css">
+ul.ztree li span.button.switch{margin-right:5px}
+ul.ztree ul ul li{display:inline-block;white-space:normal}
+ul.ztree>li>ul>li{padding:5px}
+ul.ztree>li{background: #dae6f0}
+ul.ztree>li:nth-child(even)>ul>li:nth-child(even){background: #eef5fa}
+ul.ztree>li:nth-child(even)>ul>li:nth-child(odd){background: #f6fbff}
+ul.ztree>li:nth-child(odd)>ul>li:nth-child(even){background: #eef5fa}
+ul.ztree>li:nth-child(odd)>ul>li:nth-child(odd){background: #f6fbff}
+ul.ztree>li>ul{margin-top:12px}
+ul.ztree>li{padding:10px;padding-right:10px;}
+ul.ztree li{white-space:normal!important}
+ul.ztree>li>a>span{font-size:15px;font-weight:700}
+#menuTree_21_ul,#menuTree_29_ul,#menuTree_47_ul,#menuTree_52_ul,#menuTree_57_ul,#menuTree_58_ul{ background: #f6fbff; margin-left: 20px; padding-left:0px;   }
+#menuTree_21_ul .level1,#menuTree_29_ul .level1,#menuTree_47_ul .level1,#menuTree_52_ul .level1,#menuTree_57_ul .level1,#menuTree_58_ul .level1{ display: inline-block; background: #f6fbff}  
+    </style>
+    <script type="text/javascript" src="${BASE_URI}/static/sys/js/role.js?v=${RES_VERSION}"></script>
+</head>
+<body>
+
+<div class="main-wrap">
+<form class="layui-form layui-form-pane" id="editForm" style="padding: 18px;">
+  <div id="menuTreeDiv" style="width:800px;" class="ztree-wrap">
+	<div id="projectDiv" class="layui-form-item">
+		<input type="hidden" name="id" id="mRoleId" value="${roleId!}" />
+		<div class="layui-input-inline">
+		<label>当前角色：</label><label id="mRNLable">${roleName!}</label>
+		</div>
+		<input id="btnSaveRoleMenu" type="button"
+			onclick="saveRoleMenuRelation();" class="layui-btn layui-btn-mini"  value="保 存">
+		<input id="btnSaveRoleMenu" type="button"
+			onclick="location.href='${BASE_URI}/sys/role/refresh.do?pk=${roleId!}'" class="layui-btn layui-btn-mini"  value="刷  新">
+	</div>
+	<ul id="menuTree" class="ztree"></ul>
+	
+	<input id="btnSaveRoleMenu" type="button"
+			onclick="saveRoleMenuRelation();" class="layui-btn layui-btn-mini"  value="保 存">
+  </div>
+</form>
+<!-- main-wrap end -->
+</div>
+
+<script type="text/javascript">
+function success(result) {
+	window.location.href = "${BASE_URI}/sys/role/list.do";
+}
+function failure(result) {
+	commonMessage.alertError("请确认信息完整以及正确。")
+}
+</script>
+
+<script type="text/javascript"
+	src="${BASE_URI}/static/plugins/ztree/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript"
+	src="${BASE_URI}/static/plugins/ztree/js/jquery.ztree.excheck-3.5.js"></script>
+<script type="text/javascript">
+	 var setting = {
+		check : {
+			enable : true/* ,
+			chkboxType : { "Y" : "s", "N" : "s" } */
+		},
+		view: {
+			showTitle: false
+		},
+		callback:{
+			onClick:function(event, treeId, treeNode){
+				var zTree = $.fn.zTree.getZTreeObj(treeId);
+				zTree.checkNode(treeNode, true, true);
+				return false;
+			}
+		} 
+	};
+	 
+	var treeObj = null;
+	$(document).ready(function() {
+		$.ajax({
+			async : false,
+			url : "${BASE_URI}/sys/menu/loadAllLinkForProjectName.do?projectName=${projectName}",
+			type : "POST",
+			success : function(data) {
+				var zNodes = data.model;
+				treeObj =  $.fn.zTree.init($("#menuTree"), setting,
+						zNodes.length > 0 ? zNodes : undefined)
+						.expandAll(true);
+				popMenuTree(${roleId!});
+				
+				$("#menuTree a").each(function(i, elem){
+					$(elem).removeAttr("href");
+				});
+			}
+		});
+						
+	}); 
+	
+	function popMenuTree(roleId){
+		  var zTree = $.fn.zTree.getZTreeObj("menuTree");
+		  zTree.checkAllNodes(false);
+		  $.ajax({
+			  url : WEB_ROOT + "/sys/menu/loadLinkByRole.do?roleId=" + roleId,
+		      type : "GET",
+			  success:function(data){
+				  if(data && data.resultCode != "SUCCESS"){
+					  commonMessage.message(data.errorMsg);
+					  return;
+			      }
+				  
+				  var linkIds = data.model;
+				  $(linkIds).each(function(i, d){
+				    var node = zTree.getNodeByParam("id", d);
+				    if(node && node.children.length <= 0){
+				      zTree.checkNode(node, true, true);
+				    }
+				  });
+			  }
+		  }); 
+	   }
+	
+	
+</script>
+
+</body>
+</html>

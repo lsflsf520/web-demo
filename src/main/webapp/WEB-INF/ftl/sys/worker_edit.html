@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>车型管理</title>
+    <#include "../header.html"/>
+</head>
+<body>
+
+<div class="main-wrap">
+<form class="layui-form layui-form-pane" id="dataForm" style="padding: 18px;">
+	<input type="hidden" name="id" value='<#if worker??>${worker.id!}</#if>'>
+	
+	<div class="layui-form-item">
+		<label class="layui-form-label">姓名<span style="color: red; font-weight: bold;"> *</span></label>
+		<div class="layui-input-inline">
+		  <input class="layui-input" name="workerName" lay-verify="required" value='<#if worker??>${worker.workerName!}</#if>'>
+		</div>
+        <label class="layui-form-label">登录名<span style="color: red; font-weight: bold;"> *</span></label>
+		<div class="layui-input-inline">
+		  <input class="layui-input" name="loginName" value='<#if worker??>${worker.loginName!}</#if>' lay-verify="required|chkLength" <#if worker?? && worker.loginName??>readonly</#if>>
+		</div>
+    </div>
+   <#if !worker??>
+	<div class="layui-form-item">
+		<label class="layui-form-label">登录密码<span style="color: red; font-weight: bold;"> *</span></label>
+		<div class="layui-input-inline">
+		  <input class="layui-input" id="pwd" type="password" name="password" lay-verify="required|chkLength">
+		</div>
+		<label class="layui-form-label">重复密码<span style="color: red; font-weight: bold;"> *</span></label>
+		<div class="layui-input-inline">
+		  <input class="layui-input" id="retypePwd" type="password" name="retypepwd" lay-verify="required|checkSamePwd">
+		</div>
+	</div>
+   </#if>
+	<div class="layui-form-item">
+		<label class="layui-form-label">手机<span style="color: red; font-weight: bold;"> *</span></label>
+		<div class="layui-input-inline">
+		  <input class="layui-input" name="phone" value="<#if worker??>${worker.phone!}</#if>" lay-verify="phone">
+		</div>
+		<label class="layui-form-label">邮箱</label>
+		<div class="layui-input-inline">
+		  <input class="layui-input" name="email" value="<#if worker??>${worker.email!}</#if>" lay-verify="checkEmail">
+		</div>
+	</div>
+	<div class="layui-form-item" id="roleDiv">
+		<label class="layui-form-label">选择角色</label>
+		<div class="layui-input-inline">
+		  <select name="roleId" id="roleId" lay-filter="roleSel">
+		    <#assign roleMap=ValueMap("role_id_name", acId)>
+		    <#list roleMap?keys as key>
+		      <#if IS_WEB_ADMIN || superAdminRoleId != key?number>
+		       <option value="${key}" <#if ((worker.roleId)!-1) == key?number>selected</#if>>${roleMap["${key}"]}</option>
+		      </#if>
+		    </#list>
+		  </select>
+		  <input type="hidden" id="roleName" name="roleName">
+		</div>
+	</div>
+  <#if IS_WEB_ADMIN>
+	<div class="layui-form-item">
+		<label class="layui-form-label">所属公司</label>
+		<div class="layui-input-inline">
+		  <select name="acId">
+		    <#assign acMap=ValueMap("ac_id_name")>
+		   <#if acMap??>
+		    <#list acMap?keys as key>
+		      <option value="${key}" <#if worker?? && worker.acId?? && worker.acId == key?number>selected</#if>>${acMap["${key}"]}</option>
+		    </#list>
+		   </#if>
+		    <!-- <#list acList as ac>
+				<option value="${ac.id}" <#if worker?? && (worker.acId!) == (ac.id!)>selected</#if>>${ac.name}</option>
+			</#list> -->
+		  </select>
+		  <input type="hidden" id="acName" name="acName">
+		</div>
+	</div>
+  <#else>
+    <input type="hidden" name="acId" value="${acId!}">
+  </#if>
+  <#if !IS_WEB_ADMIN>
+    <div class="layui-form-item" id="departDiv" style="<#if departOperRoleId != ((worker.roleId)!-1)>display:none</#if>">
+		<label class="layui-form-label">所属机构</label>
+		<div class="layui-input-inline">
+		  <#if departs?? && departs?size gt 0>
+		   <select name="departId" id="departId" lay-filter="departSel">
+		    <#list departs as d>
+		        <option value="${d.id}" <#if ((worker.departId)!-1) == d.id>selected</#if>>${d.levelPrefix!}${d.name!}</option>
+		    </#list>
+		   </select>
+		  </#if>
+		</div>
+	</div>
+  </#if>
+  
+   <div id="end"></div>
+      <!-- main-wrap end -->
+    <@onlyValidator 
+		checker='checker' 
+		name='保存'
+		action="actions('${BASE_URI}/sys/worker/save.do', null, 'dataForm', '保存', success, null, '操作员管理')"
+	/>
+</form>
+
+<div id="hideDiv" style="display:none;"></div>
+
+<!-- main-wrap end -->
+</div>
+<script src="${BASE_URI}/static/js/common/checker.js?v=${RES_VERSION}"></script>
+<script type="text/javascript">
+function success(result) {
+	window.location.href = "${BASE_URI}/sys/worker/list.do";
+}
+function failure(result) {
+	commonMessage.alertError("请确认信息完整以及正确。")
+}
+
+//下边这段代码是判断在当前应用为代理公司管理端的情况下，如果选择了角色为特殊的管理员角色，则需要将机构隐藏，以免造成误操作
+<#if departOperRoleId??>
+var departOperRoleId = '${departOperRoleId!}';
+var currSelRoleId = $('#roleId').val();
+if(currSelRoleId && currSelRoleId == departOperRoleId){
+	$('#departDiv').show();
+}
+layui.use([ 'form'],
+	function() {
+		var form = layui.form();
+		form.on('select(roleSel)', function(data){
+			if(data.value == departOperRoleId){
+			 // $("#departId").val(0);
+			 // form.render('select');
+			 // $("#departDiv").hide();
+			 $("#departDiv").show();
+			  $("#end").before($("#departDiv"));
+			}else{
+			  $("#hideDiv").append($("#departDiv"));
+			}
+	    });
+		
+		/* form.on('select(departSel)', function(data){
+			if(data.value != '0'){
+				$("#roleId").val(departOperRoleId);
+				$("#roleDiv").attr('readonly', 'true');
+				form.render('select');
+			}else{
+				$("#roleDiv").removeAttr('readonly');
+				form.render('select');
+			}
+	    }); */
+		
+    } 
+);
+</#if>
+</script>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ujigu.secure.sys.dao.RoleR2LinkDao" >
+  <resultMap id="BaseResultMap" type="com.ujigu.secure.sys.entity.RoleR2Link" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="ac_id" property="acId" jdbcType="INTEGER" />
+    <result column="role_id" property="roleId" jdbcType="INTEGER" />
+    <result column="link_id" property="linkId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="BaseColumnList" >
+    id, ac_id, role_id, link_id
+  </sql>
+  <select id="findByPK" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="BaseColumnList" />
+    from role_r2_link
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPK" parameterType="java.lang.Integer" >
+    delete from role_r2_link
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.ujigu.secure.sys.entity.RoleR2Link" >
+    insert into role_r2_link (id, ac_id, role_id, 
+      link_id)
+    values (#{id,jdbcType=INTEGER}, #{acId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER}, 
+      #{linkId,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPK" parameterType="com.ujigu.secure.sys.entity.RoleR2Link" >
+    update role_r2_link
+    <set >
+      <if test="acId != null" >
+        ac_id = #{acId,jdbcType=INTEGER},
+      </if>
+      <if test="roleId != null" >
+        role_id = #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="linkId != null" >
+        link_id = #{linkId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <insert id="insertReturnPK" useGeneratedKeys="true" keyProperty="id" parameterType="com.ujigu.secure.sys.entity.RoleR2Link" >
+    insert into role_r2_link (id, ac_id, role_id, 
+      link_id)
+    values (#{id,jdbcType=INTEGER}, #{acId,jdbcType=INTEGER}, #{roleId,jdbcType=INTEGER}, 
+      #{linkId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List" >
+    insert into role_r2_link
+		(id,ac_id,role_id,link_id)
+	values 
+	<foreach collection="list" item="item" separator="," index="index">
+		(#{item.id,jdbcType=INTEGER},#{item.acId,jdbcType=INTEGER},#{item.roleId,jdbcType=INTEGER},#{item.linkId,jdbcType=INTEGER})
+	</foreach>
+  </insert>
+  <select id="findByPK_inMaster" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select
+		<if test="forceMaster">
+			<![CDATA[/*master*/]]>
+		</if>
+		<include refid="BaseColumnList"/>
+	from role_r2_link	where id = #{pk, jdbcType=INTEGER}
+  </select>
+  <select id="getCntByPage" resultType="java.lang.Integer" >
+    select 
+		<if test="forceMaster">
+			<![CDATA[/*master*/]]>
+		</if>
+		count(1)
+	from
+		role_r2_link
+	<include refid="pageCondition" />
+  </select>
+  <select id="findAll" resultMap="BaseResultMap" >
+    select
+		<if test="forceMaster">
+			<![CDATA[/*master*/]]>
+		</if>
+		<include refid="BaseColumnList"/>
+	from role_r2_link
+		<if test="orderBySql != null">
+			${orderBySql}
+		</if>
+  </select>
+  <select id="findByEntity" resultMap="BaseResultMap" >
+    select
+		<if test="forceMaster">
+			<![CDATA[/*master*/]]>
+		</if>
+		<include refid="BaseColumnList"/>
+	from role_r2_link
+	<where>
+		<trim suffixOverrides="and" >
+			<if test="entity.id != null" >
+				and id = #{entity.id,jdbcType=INTEGER}
+			</if>
+			<if test="entity.acId != null" >
+				and ac_id = #{entity.acId,jdbcType=INTEGER}
+			</if>
+			<if test="entity.roleId != null" >
+				and role_id = #{entity.roleId,jdbcType=INTEGER}
+			</if>
+			<if test="entity.linkId != null" >
+				and link_id = #{entity.linkId,jdbcType=INTEGER}
+			</if>
+		</trim>
+	</where>
+		<if test="orderBySql != null">
+			${orderBySql}
+		</if>
+  </select>
+  <select id="findByPage" resultMap="BaseResultMap" >
+    select
+		<if test="forceMaster">
+			<![CDATA[/*master*/]]>
+		</if>
+		<include refid="BaseColumnList"/>
+	from role_r2_link
+		<include refid="pageCondition"/>
+		<if test="pageInfo != null and pageInfo.orderBySql != null">
+			${pageInfo.orderBySql}
+		</if>
+		<if test="pageInfo !=null">
+			limit ${pageInfo.startIndex}, ${pageInfo.pagesize}
+		</if>
+  </select>
+  <sql id="pageCondition" >
+    <where >
+      <trim suffixOverrides="and" >
+        <if test="entity != null" >
+          		<!-- 写where的判断条件,下边是样例
+			<if test="entity.nick != null">
+				and nick = #{entity.nick,jdbcType=VARCHAR}
+			</if>
+			<if test="entity.company != null">
+				and company = '${entity.nick}'
+			</if>
+		-->
+        </if>
+        <if test="dynamicSql != null">
+			and ${dynamicSql}
+		</if>
+      </trim>
+    </where>
+  </sql>
+  
+  <delete id="deleteByRrl" parameterType="java.util.Map">
+    delete from role_r2_link where ac_id = #{acId,jdbcType=INTEGER} and 
+    <foreach collection="linkIds" item="linkId" separator="or" index="index">
+    (link_id = #{linkId, jdbcType=INTEGER} and role_id in 
+      (<foreach collection="roleIds" item="roleId" separator="," index="index">
+		#{roleId,jdbcType=INTEGER}
+	  </foreach>))
+	</foreach>
+  </delete>
+  
+     <delete id="deleteByRoleId" parameterType="java.lang.Integer" >
+    delete from role_r2_link
+    where  ac_id = #{acId,jdbcType=INTEGER} and role_id = #{roleId,jdbcType=INTEGER}
+  </delete>
+  
+  
+    <delete id="deleteByProjectName" parameterType="java.lang.Integer" >
+   DELETE FROM role_r2_link 
+   WHERE  ac_id = #{acId,jdbcType=INTEGER} and role_id = #{roleId,jdbcType=VARCHAR}
+   and
+   role_r2_link.`link_id` 
+   IN(SELECT link.`id` 
+   FROM link 
+   WHERE link.`project_name`=#{projectName,jdbcType=VARCHAR})
+  
+  </delete>
+  
+  <!-- 
+  <delete id="deleteByRoleId" parameterType="java.util.Map">
+    delete from role_r2_link where role_id = #{roleId, jdbcType=INTEGER} and link_id in 
+    <foreach collection="list" item="item" separator="," index="index">
+		#{item,jdbcType=INTEGER}
+	</foreach>
+  </delete>
+   -->
+</mapper>

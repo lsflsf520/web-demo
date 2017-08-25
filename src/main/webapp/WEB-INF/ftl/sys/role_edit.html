@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>车型管理</title>
+    <#include "../header.html"/>
+</head>
+<body>
+
+<div class="main-wrap">
+<form class="layui-form layui-form-pane" id="dataForm" style="padding: 18px;">
+	 <div class="layui-form-item">
+                <input type="hidden" name="id" id="roleId" value="<#if role??>${role.id!}</#if>" />
+                <label class="layui-form-label">角色名<span style="color: red; font-weight: bold;"> *</span></label>
+                <div class="layui-input-inline">
+                    <input class="layui-input" name="name" id="roleName" value="<#if role??>${role.name!}</#if>"  lay-verify="required" placeholder="角色名">
+                </div>
+      </div>
+      
+      <div id="end"></div>
+      <!-- main-wrap end -->
+    <@onlyValidator 
+		checker='' 
+		name='保存'
+		action="actions('${BASE_URI}/sys/role/save.do', null, 'dataForm', '保存', success, null, '角色管理')"
+	/>
+</form>
+<!-- main-wrap end -->
+</div>
+<script type="text/javascript">
+function success(result) {
+	window.location.href = "${BASE_URI}/sys/role/list.do";
+}
+function failure(result) {
+	commonMessage.alertError("请确认信息完整以及正确。")
+}
+</script>
+
+</body>
+</html>
