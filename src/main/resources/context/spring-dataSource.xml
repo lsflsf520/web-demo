@@ -22,9 +22,9 @@
                   <property name="driverClassName" value="com.mysql.jdbc.Driver" />
                   <!-- 创建MySQL UTF-8编码数据库脚本：CREATE DATABASE stiku_ms DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci; -->
                   
-                  <property name="url" value="jdbc:mysql://${jdbc.logo.host}:${jdbc.logo.port}/${jdbc.logo.database}?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;allowMultiQueries=true" />
-                  <property name="username" value="${jdbc.logo.username}" />
-                  <property name="password" value="${jdbc.logo.password}" />
+                  <property name="url" value="jdbc:mysql://${jdbc.demo0.link}?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;allowMultiQueries=true" />
+                  <property name="username" value="${jdbc.demo0.username}" />
+                  <property name="password" value="${jdbc.demo0.password}" />
                   
                   <property name="maxActive" value="40"/>  
                   <property name="initialSize" value="1"/>

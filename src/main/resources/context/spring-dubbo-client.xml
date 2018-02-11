@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <dubbo:application name="demo-consumer" logger="slf4j" />
+   <!--  <dubbo:registry address="multicast://239.5.6.7:1234?unicast=false"/>  -->
+   
+    <dubbo:registry address="zookeeper://${zk.servers}" client="curator" group="p2p"/>
+   
+    <dubbo:reference id="orderService" interface="com.ujigu.secure.demo.remote.IOrderService" loadbalance="roundrobin" retries="1" cluster="failfast" />
+</beans>
